@@ -57,6 +57,6 @@ What happens if they pass us a bunch of other stuff? Not good. We could end up p
 Use the following `asserts` to validate this.
 
 ```js
-assert.equal(1, r.matchedCount);
-assert.equal(1, r.modifiedCount);
+assert.equal(1, results.matchedCount);
+assert.equal(1, results.modifiedCount);
 ```
