@@ -63,7 +63,7 @@ const createGreeting = async (req, res) => {
 };
 ```
 
-9. Add the item to the database. Here we are declaring a variable `r` that will contain the response from the db server. We use `r.insertedCount` to validate that database received our document and added it to the collection. _Notice that the collection is called `greetings`_. Add these lines within the `try`.
+9. Add the item to the database. Here we are declaring a variable `result` that will contain the response from the db server. We use `result.insertedCount` to validate that database received our document and added it to the collection. _Notice that the collection is called `greetings`_. Add these lines within the `try`.
 
 ```js
 const result = await db.collection("greetings").insertOne(req.body);
