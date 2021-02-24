@@ -16,8 +16,10 @@ express()
   .use("/", express.static(__dirname + "/"))
 
   // exercise 1
-
+  .get("/exercise-1/:name", getUsers)
+  .post("/exercise-1/:name", addUser)
   // exercise 2
+  
 
   // handle 404s
   .use((req, res) => res.status(404).type("txt").send("🤷‍♂️"))
