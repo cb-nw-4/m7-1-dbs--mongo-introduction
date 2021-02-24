@@ -19,7 +19,7 @@ const addUser = async (req, res) => {
     const db = client.db("exercise_1");
     console.log("connected!");
     
-    // await db.collection(collectionName).insertOne(newDoc);
+    await db.collection(collectionName).insertOne(newDoc);
 
     client.close();
     console.log("disconnected!");
