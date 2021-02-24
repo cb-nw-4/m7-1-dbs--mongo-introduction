@@ -9,8 +9,9 @@ const options = {
 };
 
 const getUsers = async (req, res) => {
-  const dbName = "exercise_1";
   const client = await MongoClient(MONGO_URI, options);
+
+  const dbName = "exercise_1";
 
   await client.connect();
 
