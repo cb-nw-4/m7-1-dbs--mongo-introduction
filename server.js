@@ -4,7 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const { getUsers } = require("./exercises/exercise-1.3");
-const { addUser } = require("./exercises/exercise-1.4");
+// const { addUser } = require("./exercises/exercise-1.4");
 
 const PORT = process.env.PORT || 8000;
 
@@ -15,7 +15,24 @@ express()
   .use(express.urlencoded({ extended: false }))
   .use("/", express.static(__dirname + "/"))
 
+
   // exercise 1
+
+  .get("/exercise-1/users", async(req, res) => {
+    const users = await getUsers('exercise_1')
+
+    if (users.length < 1) {
+      res.status(404).send({
+        status: 404,
+        data: 'nothing here hombre'
+      })
+    } else {
+      res.status(200).send({
+        status: 200,
+        data: users
+      })
+    }
+  })
 
   // exercise 2
 
