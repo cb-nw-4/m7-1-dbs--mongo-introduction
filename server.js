@@ -16,6 +16,26 @@ express()
   .use("/", express.static(__dirname + "/"))
 
   // exercise 1
+  .get("/exercise-1/users", async (req, res) => {
+      const data = await getUsers("exercise_1");
+
+      if (data.length === 0) {
+        res.status(404).json({ status: 404, data: "No data found." });
+      }
+      else if (data.length > 0) {
+        res.status(200).json({ status: 200, data: data });
+      }
+  })
+
+  .post("/exercise-1/users", async (req, res) => {
+    const newUser = req.body;
+    try {
+      await addUser("exercise_1", newUser);
+      res.status(201).json({ status: 201, data: newUser});
+    } catch (err) {
+      res.status(400).json({ status: 400, data: newUser});
+    }
+  })
 
   // exercise 2
 
