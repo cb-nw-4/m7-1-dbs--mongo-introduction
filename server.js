@@ -26,7 +26,7 @@ express()
   //exercise 1-4
   .post("/exercise-1/users", addUser)
 
-  //exercise 2
+  //exercise 2.1
   .post('/exercise-2/greeting', createGreeting)
 
   //exercise 2.3
