@@ -25,14 +25,20 @@ const createGreeting = async (req, res) => {
 }
 
 const getGreeting = async (req, res) => {
-    const _id = req.params._id;
+    const quary = req.params.quary;
+    const _id = quary.toUpperCase();
+    const lang = quary.toLowerCase();
+    const capitalizedLang = lang.charAt(0).toUpperCase() + lang.slice(1);
     const client = await MongoClient(MONGO_URI, options);
     await client.connect();
     const db = client.db("exercises");
-    db.collection("greetings").findOne({ _id }, (err, result) => {
+    db.collection("greetings").findOne({$or: [
+        { "_id": _id },
+        {"lang": capitalizedLang }
+    ]}, (err, result) => {
         result
-            ? res.status(200).json({ status: 200, _id, data: result })
-            : res.status(404).json({ status: 404, _id, data: "Not Found" });
+            ? res.status(200).json({ status: 200, quary, data: result })
+            : res.status(404).json({ status: 404, quary, data: "Not Found" });
         client.close();
     });
 }
@@ -54,6 +60,20 @@ const getGreetings = async (req, res) => {
     }
 }
 
-exports.createGreeting = createGreeting;
-exports.getGreeting = getGreeting;
-exports.getGreetings = getGreetings;
+const deleteGreeting = async (req, res) => {
+    const _id = req.params._id;
+    const client = await MongoClient(MONGO_URI, options);
+    try {
+        await client.connect();
+        const db = client.db("exercises");
+        const result = await db.collection("greetings").deleteOne({ "_id": _id });
+        assert.equal(1, result.deletedCount);
+        res.status(204).json({ status: 204 });
+    } catch (err) {
+        console.log(err.stack);
+        res.status(500).json({ status: 500, data: _id, message: err.message });
+    }
+    client.close();
+}
+
+module.exports = { createGreeting, getGreeting, getGreetings, deleteGreeting };
