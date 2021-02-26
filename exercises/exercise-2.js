@@ -18,6 +18,8 @@ const createGreeting = async (req, res) => {
     const db = client.db('exercise_1');
     const result = await db.collection('greetings').insertOne(req.body);
 
+    client.close();
+
     assert.strictEqual(1, result.insertedCount);
 
     res.status(201).json({ status: 201, data: req.body });
