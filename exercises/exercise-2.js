@@ -39,7 +39,7 @@ const getGreeting = async (req, res) => {
   
     const db = client.db('exercise_1');
     
-    await db.collection('greetings').findOne({ _id }, (err,result) => {
+    await db.collection('greetings').findOne({ _id }, (err, result) => {
       if (result) {
         res.status(200).json({ status: 200, _id, data: result });
       } else {
@@ -53,4 +53,49 @@ const getGreeting = async (req, res) => {
   }
 };
 
-module.exports = { createGreeting, getGreeting };
+const getGreetings = async (req, res) => {
+  try {
+    const client = await MongoClient(MONGO_URI, options);
+
+    await client.connect();
+  
+    const db = client.db('exercise_1');
+    
+    await db.collection('greetings').find().toArray((err, result) => {
+      let start = -1;
+      let limit = -1;
+
+      if (req.query.hasOwnProperty('start')) {
+        start = Number(req.query.start);
+      }
+
+      if (req.query.hasOwnProperty('limit')) {
+        limit = Number(req.query.limit);
+      }
+
+      if (result.length > 0) {
+        if (start === -1 && limit === -1) {
+          // No query parameters given.  Return first 25 records.
+          res.status(200).json({ status: 200, data: result.slice(0, 25) });
+        } else if (start !== -1 && limit !== -1) {
+          // start and limit given
+          res.status(200).json({ status: 200, data: result.slice(start, start + limit) });
+        } else if (start !== -1 && limit === -1) {
+          // start given
+          res.status(200).json({ status: 200, data: result.slice(start, start + 25) });
+        } else if (start === -1 && limit !== -1) {
+          // limit given
+          res.status(200).json({ status: 200, data: result.slice(0, limit) });
+        }
+      } else {
+        res.status(404).json({ status: 404, data: 'Not found' });
+      }
+
+      client.close();
+    });
+  } catch (err) {
+    res.status(500).json({ status: 500, message: err.message });
+  }
+};
+
+module.exports = { createGreeting, getGreeting, getGreetings };
