@@ -14,7 +14,7 @@ const createGreeting = async (req, res) => {
   try {
     await client.connect();
 
-    const db = client.db("exercise_2");
+    const db = client.db("greetings");
     console.log("connected!");
 
     const result = await db.collection("greetings").insertOne(req.body);
@@ -22,7 +22,7 @@ const createGreeting = async (req, res) => {
 
     console.log(req.body);
     res.status(201).json({ status: 201, data: req.body });
-    
+
 } catch (err) {
     res.status(500).json({ status: 500, data: req.body, message: err.message });
 }
