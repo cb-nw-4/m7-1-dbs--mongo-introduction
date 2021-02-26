@@ -122,9 +122,43 @@ const deleteGreeting = async (req, res) => {
   }
 };
 
+const updateGreeting = async (req, res) => {
+  // Make sure hello key is present in body
+  if (req.body.hasOwnProperty('hello')) {
+    const _id = req.params._id;
+    const hello = req.body.hello;
+    const updateValues = { $set: { hello }};
+
+    try {
+
+      const client = await MongoClient(MONGO_URI, options);
+
+      await client.connect();
+  
+      const db = client.db('exercise_1');
+      const results = await db.collection('greetings').updateOne({ _id }, updateValues);
+
+      client.close();
+
+      if (results.matchedCount !== 1) {
+        res.status(404).json({ status: 404, _id, data: 'Not found' });
+      } else if (results.modifiedCount !== 1) {
+        res.status(400).json({ status: 400, _id, data: 'Not modified' });
+      } else {
+        res.status(200).json({ status: 200, _id, data: hello });
+      }
+    } catch (err) {
+      res.status(500).json({ status: 500, _id, message: err.message });
+    }
+  } else {
+    res.status(400).json({ status: 400, message: 'hello key missing from body' });
+  }
+};
+
 module.exports = {
   createGreeting,
   getGreeting,
   getGreetings,
-  deleteGreeting
+  deleteGreeting,
+  updateGreeting
 };
