@@ -37,5 +37,23 @@ const getGreeting = async (req, res) => {
     });
 }
 
+const getGreetings = async (req, res) => {
+    const request = req.query;
+    const start = request.start ? Number(request.start) - 1 : 0;
+    const end = request.limit ? Number(request.limit) + start : 10 + start;
+
+    const client = await MongoClient(MONGO_URI, options);
+    await client.connect();
+    const db = client.db("exercises");
+    const result = await db.collection("greetings").find().toArray();
+    let selection = result.slice(start, end);
+    if (selection.length > 0) {
+        res.status(200).json({ status: 200, start: request.start, limit: selection.length, data: selection });
+    } else {
+        res.status(404).json({ status: 404, data: "Not Found" });
+    }
+}
+
 exports.createGreeting = createGreeting;
 exports.getGreeting = getGreeting;
+exports.getGreetings = getGreetings;
