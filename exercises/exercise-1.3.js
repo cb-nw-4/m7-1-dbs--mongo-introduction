@@ -19,12 +19,12 @@ const getUsers = async (req, res) => {
     res.status(404).json({
       status: 404,
       message: 'data not found',
-      data: users,
     })
   } else {
     res.status(202).json({
       status: 202,
       message: `success`,
+      data: users,
     })
   }
   client.close()
