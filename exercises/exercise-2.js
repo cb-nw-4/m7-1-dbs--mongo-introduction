@@ -29,4 +29,28 @@ const createGreeting = async (req, res) => {
   }
 };
 
-module.exports = { createGreeting };
+const getGreeting = async (req, res) => {
+  const _id = req.params._id;
+
+  try {
+    const client = await MongoClient(MONGO_URI, options);
+
+    await client.connect();
+  
+    const db = client.db('exercise_1');
+    
+    await db.collection('greetings').findOne({ _id }, (err,result) => {
+      if (result) {
+        res.status(200).json({ status: 200, _id, data: result });
+      } else {
+        res.status(404).json({ status: 404, _id, data: 'Not found' });
+      }
+
+      client.close();
+    });
+  } catch (err) {
+    res.status(500).json({ status: 500, data: _id, message: err.message });
+  }
+};
+
+module.exports = { createGreeting, getGreeting };
