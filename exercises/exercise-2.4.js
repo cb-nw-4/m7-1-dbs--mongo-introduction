@@ -28,7 +28,7 @@ const options = {
 
     res.status(201).json({
       status: 201,
-      data: users.slice(start, start + limit)
+      data: start + limit > users.length ? users.slice(start, users.length) : users.slice(start, start + limit)
     })
 
     client.close();
