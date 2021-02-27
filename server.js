@@ -5,6 +5,12 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const { getUsers } = require("./exercises/exercise-1.3");
 const { addUser } = require("./exercises/exercise-1.4");
+const {
+  createGreeting,
+  getGreeting,
+  getGreetings,
+  deleteGreeting,
+} = require("./exercises/exercise-2");
 
 const PORT = process.env.PORT || 8000;
 
@@ -18,8 +24,12 @@ express()
   // exercise 1
   .get("/exercise-1/:name", getUsers)
   .post("/exercise-1/:name", addUser)
+
   // exercise 2
-  
+  .post("/exercise-2/greeting", createGreeting)
+  .get("/exercise-2/greeting/:_id", getGreeting)
+  .get("/exercise-2/greeting", getGreetings)
+  .delete("/exercise-2/greeting/:_id", deleteGreeting)
 
   // handle 404s
   .use((req, res) => res.status(404).type("txt").send("🤷‍♂️"))

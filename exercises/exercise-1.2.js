@@ -4,22 +4,22 @@ require("dotenv").config();
 const { MONGO_URI } = process.env;
 
 const options = {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 };
 
 const getCollection = async (dbName) => {
-    const client = await MongoClient(MONGO_URI, options);
-    await client.connect();
+  const client = await MongoClient(MONGO_URI, options);
+  await client.connect();
 
-    const db = client.db(dbName);
-    console.log("connected!");
-    
-    const data = await db.collection("users").find().toArray();
-    console.log("Retreived data-", data);
+  const db = client.db(dbName);
+  console.log("connected!");
 
-    client.close();
-    console.log("disconnected!");
-}
+  const data = await db.collection("users").find().toArray();
+  console.log("Retreived data-", data);
+
+  client.close();
+  console.log("disconnected!");
+};
 
 getCollection("exercise_1");
