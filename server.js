@@ -9,6 +9,7 @@ const { createGreeting } = require('./exercises/exercise-2.1');
 const { getGreeting } = require('./exercises/exercise-2.3');
 const { allGreetings } = require('./exercises/exercise-2.4');
 const { deleteGreetings } = require('./exercises/exercise-2.5');
+const { updateGreeting } = require('./exercises/exercise-2.6');
 const PORT = process.env.PORT || 8000;
 
 express()
@@ -28,6 +29,8 @@ express()
   .get('/exercise-2/greeting', allGreetings)
 
   .delete('/ex-2/greeting/:_id', deleteGreetings)
+
+  .put('exercise-2/greeting/:_id', updateGreeting )
   // handle 404s
   .use((req, res) => res.status(404).type("txt").send("🤷‍♂️"))
 
