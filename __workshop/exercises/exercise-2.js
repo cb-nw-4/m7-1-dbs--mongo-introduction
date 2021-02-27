@@ -48,7 +48,43 @@ const getGreeting = async (req, res) => {
   client.close();
 };
 
+const getGreetings = async (req, res) => {
+  const start = parseInt(req.query.start) - 1;
+  const limit = parseInt(req.query.limit) + start;
+  try {
+    const client = await MongoClient(MONGO_URI, options);
+    await client.connect();
+    const db = client.db("exercise_1");
+
+    const result = await db.collection("greetings").find().toArray();
+    console.log(result);
+
+    if (result.length > 0 && start < result.length) {
+      if (limit <= result.length) {
+        const slicedResults = result.slice(start, limit);
+        res.status(200).json({ status: 200, data: slicedResults });
+      } else {
+        const slicedResults = result.slice(result.length - 10, result.length);
+        res
+          .status(200)
+          .json({
+            status: 200,
+            start: start,
+            limit: result.length,
+            data: slicedResults,
+          });
+      }
+    } else {
+      res.status(404).json({ status: 404, data: "Bad request" });
+    }
+  } catch (err) {
+    res.status(500).json({ status: 500, message: err.message });
+  }
+  client.close();
+};
+
 module.exports = {
   createGreeting,
   getGreeting,
+  getGreetings,
 };

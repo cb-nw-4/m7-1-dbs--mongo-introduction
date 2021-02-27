@@ -8,6 +8,7 @@ const { addUser } = require("./__workshop/exercises/exercise-1.4");
 const {
   createGreeting,
   getGreeting,
+  getGreetings,
 } = require("./__workshop/exercises/exercise-2");
 
 const PORT = process.env.PORT || 8000;
@@ -26,6 +27,7 @@ express()
   // exercise 2
   .post("/exercise-2/greeting", createGreeting)
   .get("/exercise-2/:_id", getGreeting)
+  .get("/ex-2/greeting", getGreetings)
 
   // handle 404s
   .use((req, res) => res.status(404).type("txt").send("🤷‍♂️"))
