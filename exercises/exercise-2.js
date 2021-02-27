@@ -108,4 +108,29 @@ const getGreetings = async (req, res) => {
   client.close()
 }
 
-module.exports = { createGreeting, getGreeting, getGreetings }
+const deleteGreeting = async (req, res) => {
+  const client = await MongoClient(MONGO_URI, options)
+  try {
+    await client.connect()
+    const db = client.db('exercise_1')
+    console.log('connected!')
+    const result = await db.collection('greetings').deleteOne(req.body)
+    assert.equal(1, result.deleteCount)
+
+    res.status(204).json({
+      status: 204,
+      data: req.body,
+      message: 'deleted',
+    })
+  } catch (err) {
+    res.status(500).json({
+      status: 500,
+      data: req.body,
+      message: err.message,
+    })
+  }
+  client.close()
+  console.log('disconnected!')
+}
+
+module.exports = { createGreeting, getGreeting, getGreetings, deleteGreeting }
