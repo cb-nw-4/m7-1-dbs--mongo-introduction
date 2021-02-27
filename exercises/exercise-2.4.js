@@ -11,7 +11,11 @@ const options = {
   const getGreetings = async (req,res) => {
 
   try {
+    const start = req.query.start ? Number(req.query.start) : 0;
+    const limit = req.query.limit ? Number(req.query.limit): 25;
 
+
+    console.log(typeof(start, limit))
     const client = await MongoClient(MONGO_URI, options);
   
     await client.connect();
@@ -24,7 +28,7 @@ const options = {
 
     res.status(201).json({
       status: 201,
-      data: users
+      data: users.slice(start, start + limit)
     })
 
     client.close();
