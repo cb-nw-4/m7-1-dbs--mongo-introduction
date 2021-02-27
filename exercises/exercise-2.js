@@ -38,6 +38,7 @@ const getGreeting = async (req, res) => {
   try {
     await client.connect()
     const db = client.db('exercise_1')
+    console.log('connected!')
 
     db.collection('greetings').findOne({ _id }, (err, result) => {
       result
@@ -49,6 +50,7 @@ const getGreeting = async (req, res) => {
     console.log(err.stack)
     res.status(500).json({ status: 500, message: err.message })
     client.close()
+    console.log('disconnected!')
   }
 }
 
@@ -62,6 +64,7 @@ const getGreetings = async (req, res) => {
   try {
     await client.connect()
     const db = client.db('exercise_1')
+    console.log('connected!')
 
     const data = await db.collection('greetings').find().toArray()
     if (data.length === 0) {
@@ -106,6 +109,7 @@ const getGreetings = async (req, res) => {
     })
   }
   client.close()
+  console.log('disconnected!')
 }
 
 const deleteGreeting = async (req, res) => {
@@ -114,6 +118,7 @@ const deleteGreeting = async (req, res) => {
     await client.connect()
     const db = client.db('exercise_1')
     console.log('connected!')
+
     const result = await db.collection('greetings').deleteOne(req.body)
     assert.equal(1, result.deleteCount)
 
@@ -133,4 +138,32 @@ const deleteGreeting = async (req, res) => {
   console.log('disconnected!')
 }
 
-module.exports = { createGreeting, getGreeting, getGreetings, deleteGreeting }
+const updateGreeting = async (req, res) => {
+  const client = await MongoClient(MONGO_URI, options)
+  const _id = req.params._id
+  try {
+    await client.connect()
+    const db = client.db('exercise_1')
+    console.log('connected!')
+
+    const newValues = { $set: { hello: req.body.hello } }
+    const results = await db.collection('greetings').updateOne({ _id }, newValues)
+    assert.equal(1, results.matchedCount)
+    assert.equal(1, results.modifiedCount)
+
+    res.status(200).json({
+      status: 200,
+      _id,
+      ...req.body,
+    })
+  } catch (err) {
+    res.status(500).json({
+      status: 500,
+      data: req.body,
+      message: err.message,
+    })
+  }
+  client.close()
+  console.log('disconnected!')
+}
+module.exports = { createGreeting, getGreeting, getGreetings, deleteGreeting, updateGreeting }
