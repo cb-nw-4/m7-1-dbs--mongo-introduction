@@ -51,4 +51,61 @@ const getGreeting = async (req, res) => {
     client.close()
   }
 }
-module.exports = { createGreeting, getGreeting }
+
+const getGreetings = async (req, res) => {
+  const { start, limit } = req.params
+  const client = await MongoClient(MONGO_URI, options)
+
+  start = parseInt(start) ? parseInt(start) : 0
+  limit = parseInt(limit) ? parseInt(limit) : 25
+
+  try {
+    await client.connect()
+    const db = client.db('exercise_1')
+
+    const data = await db.collection('greetings').find().toArray()
+    if (data.length === 0) {
+      res.status(404).json({
+        status: 404,
+        message: 'data not found',
+      })
+    } else {
+      if (start >= data.length) {
+        const newLimit = limit > data.length ? data.length : limit
+        const newStart = data.length - newLimit
+        res.status(200).json({
+          start: newStart,
+          limit: newLimit,
+          status: 200,
+          message: 'success',
+          data: data.slice(newStart, newStart + newLimit),
+        })
+      } else if (start + limit > data.length) {
+        const newLimit = data.length - start
+        res.status(200).json({
+          start: start,
+          limit: newLimit,
+          status: 200,
+          message: 'success',
+          data: data.slice(start, start + newLimit),
+        })
+      } else {
+        res.status(200).json({
+          start: start,
+          limit: limit,
+          status: 200,
+          message: 'success',
+          data: data.slice(start, start + limit),
+        })
+      }
+    }
+  } catch (err) {
+    res.status(500).json({
+      status: 500,
+      message: err.message,
+    })
+  }
+  client.close()
+}
+
+module.exports = { createGreeting, getGreeting, getGreetings }
