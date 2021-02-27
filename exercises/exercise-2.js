@@ -122,4 +122,49 @@ const deleteGreeting = async (req, res) => {
   console.log("disconnected!");
 };
 
-module.exports = { createGreeting, getGreeting, getGreetings, deleteGreeting };
+// ex2.6
+const updateGreeting = async (req, res) => {
+  const client = await MongoClient(MONGO_URI, options);
+  const _id = req.params._id;
+  const query = { _id };
+  const newValues = { $set: { ...req.body } };
+  try {
+    await client.connect();
+    const db = client.db("exercises");
+    console.log("connected!");
+
+    if (Object.keys(req.body)[0] === "hello") {
+      const results = await db
+        .collection("greetings")
+        .updateOne(query, newValues);
+      assert.strictEqual(1, results.matchedCount);
+      assert.strictEqual(1, results.modifiedCount);
+      res.status(200).json({
+        status: 200,
+        _id,
+        data: Object.keys(req.body),
+        message: "Query matched and upated",
+      });
+    } else {
+      res.status(200).json({
+        status: 200,
+        _id,
+        message: "Query match not found.",
+        data: req.body,
+      });
+    }
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ status: 500, data: _id, message: err.message });
+  }
+  client.close();
+  console.log("disconnected!");
+};
+
+module.exports = {
+  createGreeting,
+  getGreeting,
+  getGreetings,
+  deleteGreeting,
+  updateGreeting,
+};
