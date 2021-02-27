@@ -65,14 +65,12 @@ const getGreetings = async (req, res) => {
         res.status(200).json({ status: 200, data: slicedResults });
       } else {
         const slicedResults = result.slice(result.length - 10, result.length);
-        res
-          .status(200)
-          .json({
-            status: 200,
-            start: start,
-            limit: result.length,
-            data: slicedResults,
-          });
+        res.status(200).json({
+          status: 200,
+          start: start,
+          limit: result.length,
+          data: slicedResults,
+        });
       }
     } else {
       res.status(404).json({ status: 404, data: "Bad request" });
@@ -83,8 +81,27 @@ const getGreetings = async (req, res) => {
   client.close();
 };
 
+const deleteGreeting = async (req, res) => {
+  const client = await MongoClient(MONGO_URI, options);
+  try {
+    await client.connect();
+    const db = client.db("exercise_1");
+    const result = await db
+      .collection("greetings")
+      .deleteOne({ _id: req.params._id });
+    assert.equal(1, result.deletedCount);
+    res
+      .status(204)
+      .json({ status: 204, data: result, message: "Document deleted." });
+  } catch (err) {
+    res.status(500).json({ status: 500, message: err.message });
+  }
+  client.close();
+};
+
 module.exports = {
   createGreeting,
   getGreeting,
   getGreetings,
+  deleteGreeting,
 };
