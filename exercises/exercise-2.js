@@ -11,31 +11,34 @@ const options = {
 };
 
 const createGreeting = async (req, res) => {
+  const client = await MongoClient(MONGO_URI, options);
   try {
-    const client = await MongoClient(MONGO_URI, options);
     await client.connect();
 
-    const db = client.db();
+    const db = client.db("exercise_1");
 
     const result = await db.collection("greetings").insertOne(req.body);
     assert.strictEqual(1, result.insertedCount);
     //console.log(greetings);
+
+    res.status(201).json({ status: 201, data: req.body });
   } catch (err) {
     console.log(err.stack);
+    res.status(500).json({ status: 500, data: req.body, message: err.message });
+  } finally {
+    client.close();
   }
-
-  client.close();
 };
 
 const getGreeting = async (req, res) => {
+  const _id = req.params._id;
+  // console.log(_id);
+  const client = await MongoClient(MONGO_URI, options);
   try {
     // res.status(200).json("bacon");
-    const _id = req.params._id;
-    // console.log(_id);
-    const client = await MongoClient(MONGO_URI, options);
     await client.connect();
 
-    const db = client.db();
+    const db = client.db("exercise_1");
 
     db.collection("greetings").findOne({ _id }, (err, result) => {
       result
@@ -45,23 +48,23 @@ const getGreeting = async (req, res) => {
     });
   } catch (err) {
     console.log(err.stack);
-    res.status(500).json({ status: 500, message: "Unexpected error" });
+    res.status(500).json({ status: 500, message: err.message });
   }
 };
 
 const getGreetings = async (req, res) => {
-  try {
-    const start = parseInt(req.query.start) - 1;
-    //console.log(start);
-    const limit = parseInt(req.query.limit);
-    //console.log(limit);
-    const finish = start + limit;
-    //console.log(finish);
+  const start = parseInt(req.query.start) - 1;
+  //console.log(start);
+  const limit = parseInt(req.query.limit);
+  //console.log(limit);
+  const finish = start + limit;
+  //console.log(finish);
 
-    const client = await MongoClient(MONGO_URI, options);
+  const client = await MongoClient(MONGO_URI, options);
+  try {
     await client.connect();
 
-    const db = client.db();
+    const db = client.db("exercise_1");
     const greetings = await db.collection("greetings").find().toArray();
     //console.log(greetings);
 
@@ -73,44 +76,38 @@ const getGreetings = async (req, res) => {
         data: greetings.slice(start, finish),
       });
     } else if (!finish || start >= 0 || !limit) {
-      res.status(200).json({
-        status: 200,
+      res.status(500).json({
+        status: 500,
         message:
           start > greetings.length
             ? "Start number is larger than array length"
             : "Please input valid numbers for both start and limit",
         data: greetings,
       });
-    } else {
-      res.status(404).json({ status: 404 });
     }
   } catch (err) {
     console.log(err.stack);
-    res.status(500).json({ status: 500, message: "Unexpected error" });
+    res.status(500).json({ status: 500, message: err.message });
+  } finally {
+    client.close();
   }
 };
 
 const deleteGreeting = async (req, res) => {
+  const _id = req.params._id;
   const client = await MongoClient(MONGO_URI, options);
   try {
     await client.connect();
 
-    const db = client.db();
+    const db = client.db("exercise_1");
 
-    const _id = req.params._id;
-    const query = { _id };
-    const newValues = { $set: { ...req.body } };
-
-    const result = await db.collection("greetings").updateOne(query, newValues);
-    assert.strictEqual(1, result.updatedCount);
-    if (result) {
-      res.status(200).json({ status: 200, _id, ...req.body });
-    } else {
-      res.status(404).json({ status: 404 });
-    }
+    const result = await db.collection("greetings").deleteOne({ _id });
+    assert.strictEqual(1, result.deletedCount);
+    //console.log(greetings);
+    res.status(204).json({ status: 204, message: "Deleted" });
   } catch (err) {
     console.log(err.stack);
-    res.status(500).json({ status: 500, message: "Unexpected error" });
+    res.status(500).json({ status: 500, data: _id, message: err.message });
   } finally {
     client.close();
   }
@@ -118,12 +115,12 @@ const deleteGreeting = async (req, res) => {
 
 const updateGreeting = async (req, res) => {
   const client = await MongoClient(MONGO_URI, options);
+  const _id = req.params._id;
   try {
     await client.connect();
 
     const db = client.db();
 
-    const _id = req.params._id;
     const query = { _id };
     const newValues = { $set: { hello: req.body.hello } };
     //const newValues = { $unset: { "hello   ": "" } };
@@ -144,12 +141,7 @@ const updateGreeting = async (req, res) => {
     //   throw new Error("Matched document not modified")
     // }
 
-    res.status(200).json({
-      status: 200,
-      _id,
-      message: "Success, hello added or updated",
-      // result
-    });
+    res.status(204).json({ status: 204, message: "Updated" });
   } catch (err) {
     console.log(err.stack);
     res.status(500).json({ status: 500, message: err.message });

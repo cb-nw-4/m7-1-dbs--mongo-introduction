@@ -12,10 +12,11 @@ const getCollection = async () => {
   const client = await MongoClient(MONGO_URI, options);
   await client.connect();
 
-  const db = client.db();
+  const db = client.db("exercise_1");
 
   const users = await db.collection("users").find().toArray();
-  console.log(users);
+  //console.log(users);
+  client.close();
 };
 
 getCollection();

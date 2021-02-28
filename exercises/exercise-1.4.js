@@ -12,9 +12,9 @@ const addUser = async (req, res) => {
   const client = await MongoClient(MONGO_URI, options);
   await client.connect();
 
-  const db = client.db();
+  const db = client.db("exercise_1");
   const newUser = req.body;
-  console.log(newUser);
+  //console.log(newUser);
 
   await db.collection("users").insertOne(newUser);
 
