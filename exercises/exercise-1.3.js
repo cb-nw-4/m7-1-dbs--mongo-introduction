@@ -33,10 +33,10 @@ const getUsers = async(req, res)=>{
             status: 200,
             data: data
         })
-        client.close();
-        console.log("disconnected!")
-
+        
     }
+    client.close();
+    console.log("disconnected!")
 }
 
 module.exports ={getUsers}
