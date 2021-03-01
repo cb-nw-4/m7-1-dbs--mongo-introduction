@@ -44,6 +44,7 @@ const createGreeting = async (req, res) => {
 const getGreeting = async(req, res) =>{
 
     const _id = req.params._id.toUpperCase();
+    
 
     console.log(_id)
 
@@ -53,7 +54,10 @@ const getGreeting = async(req, res) =>{
 
     const db = client.db('exercise_1');
 
-    db.collection("greetings").findOne({_id} , (err, result) => {
+    db.collection("greetings").findOne({$or:[
+                    {_id: _id},
+                    {lang: _id}
+                ]} , (err, result) => {
         result
             ? res.status(200).json({ status: 200, _id, data: result })
             : res.status(404).json({ status: 404, _id, data: "Not Found" });
@@ -71,7 +75,6 @@ const getGreetings = async(req, res) =>{
         await client.connect();
     
         const db = client.db('exercise_1');
- 
     
         const {start, limit} = req.query 
     
@@ -106,7 +109,9 @@ const getGreetings = async(req, res) =>{
                 throw('emplty data')
             }
         }else{
-            throw('start and limit must be numbers')
+            res.status(200).json({
+                status: 200, 
+                data: data})
         }
 
     } catch(error){
@@ -119,11 +124,6 @@ const getGreetings = async(req, res) =>{
     client.close()
     console.log('Disconnected!!')
     
-
-
-
-
-
 }
 
 const deleteGreeting = async(req, res) =>{
@@ -135,7 +135,7 @@ const deleteGreeting = async(req, res) =>{
 
     const _id = req.params._id.toUpperCase();
     
-    console.log(_id)
+    console.log(_id, 'id')
 
     try{
         await client.connect();
@@ -143,24 +143,68 @@ const deleteGreeting = async(req, res) =>{
         const db = client.db('exercise_1');
         let query = { "_id": _id }
 
-
-        console.log('resu', query)
-
         const result = await db.collection("greetings").deleteOne(query)
 
-        console.log('res', result.deletedCount)
-
-
-        res.status(204).json({ status: 204, data: query });
-
+        
+        if( result.deletedCount === 1){
+            console.log(typeof result.deletedCount , 'delete')
+            
+            res.status(200).json({ status: 200, data: 'the document was delete with success'});
+        }else{
+            throw("the document with giver Id can't be Deleted!! verify the Id and try again")
+        }
 
     }catch(error){
-        console.log(error.stack)
-        res.status(500).json({ status: 500, data: error.message });
+        console.log(error)
+        res.status(500).json({ status: 500, data: error});
     }
     
     client.close();
     console.log("Disconnected!!")
+
+}
+
+const updateGreeting = async(req, res)=>{
+
+    console.log(req.body);
+
+    const client = await MongoClient(MONGO_URI, options);
+
+    const _id = req.params._id.toUpperCase();
+
+    const query = {_id};
+    const newValues = { $set: { ...req.body } };
+
+    
+    console.log(query, 'id')
+    try{
+        await client.connect();
+
+        const db = client.db('exercise_1');
+        
+    
+        console.log('new', newValues)
+        if(req.body.hello){
+            const result = await db.collection("greetings").updateOne(query, newValues)
+            assert.strictEqual(1, result.matchedCount);
+            assert.strictEqual(1, result.modifiedCount);
+            
+            res.status(200).json({ status: 200, _id, ...req.body });
+
+        }else{
+            throw('must modify hello word')
+        }
+
+
+    }catch(error){
+        console.log(error)
+        res.status(500).json({ status: 500, data: error});
+    }
+    
+    client.close();
+    console.log("Disconnected!!")
+
+
 
 }
 
@@ -169,4 +213,5 @@ const deleteGreeting = async(req, res) =>{
 module.exports = {createGreeting, 
     getGreeting, 
     getGreetings,
+    updateGreeting,
     deleteGreeting}
