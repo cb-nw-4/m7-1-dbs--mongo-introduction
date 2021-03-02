@@ -10,7 +10,6 @@ const options = {
 }
 
 const assert = require('assert');
-const { start } = require('repl');
 
 
 const createGreeting = async (req, res) => {
@@ -43,7 +42,7 @@ const createGreeting = async (req, res) => {
 
 const getGreeting = async(req, res) =>{
 
-    const _id = req.params._id.toUpperCase();
+    const query = req.params._id.toUpperCase();
     
 
     console.log(_id)
@@ -55,12 +54,12 @@ const getGreeting = async(req, res) =>{
     const db = client.db('exercise_1');
 
     db.collection("greetings").findOne({$or:[
-                    {_id: _id},
-                    {lang: _id}
+                    {_id: query},
+                    {lang: query}
                 ]} , (err, result) => {
         result
-            ? res.status(200).json({ status: 200, _id, data: result })
-            : res.status(404).json({ status: 404, _id, data: "Not Found" });
+            ? res.status(200).json({ status: 200, query, data: result })
+            : res.status(404).json({ status: 404, query, data: "Not Found" });
         client.close();
     });
 }
